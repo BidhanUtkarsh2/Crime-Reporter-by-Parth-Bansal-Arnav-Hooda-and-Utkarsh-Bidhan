@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICEMIRE Cashier</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Crime Reporter - Anonymous</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -15,1263 +12,1983 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary-dark: #1a2332;
+            --primary-blue: #2c5aa0;
+            --accent-blue: #3d7ab8;
+            --text-dark: #2c3e50;
+            --text-light: #f8f9fa;
+            --border-grey: #e0e6ed;
+            --bg-light: #f5f7fa;
+            --success: #27ae60;
+            --warning: #e67e22;
+            --glow: rgba(44, 90, 160, 0.5);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            color: #fff;
-            min-height: 100vh;
-            padding: 24px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            background: var(--text-light);
+            line-height: 1.6;
         }
 
-        .container {
-            max-width: 1280px;
+        /* Navigation Bar with Gradient */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f1621 100%);
+            color: var(--text-light);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
             margin: 0 auto;
-        }
-
-        /* Header */
-        .header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 32px;
-        }
-
-        .header-left {
-            display: flex;
             align-items: center;
-            gap: 12px;
+            padding: 1rem 2rem;
         }
 
-        .header-left-content h1 {
-            font-size: 48px;
+        .logo {
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -0.03em;
-            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            color: var(--text-light);
+            background: linear-gradient(135deg, #fff 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInDown 0.6s ease;
         }
 
-        .header-left-content p {
-            color: #94a3b8;
-            font-size: 12px;
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .gamepad-icon {
-            font-size: 40px;
-            color: #60a5fa;
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, var(--accent-blue), #5a8fd4);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(61, 122, 184, 0.5);
         }
 
-        .header-right {
-            text-align: right;
+        .nav-menu a:hover::after,
+        .nav-menu a.active::after {
+            width: 100%;
         }
 
-        .header-right p:first-child {
-            color: #94a3b8;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 8px;
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: var(--accent-blue);
+            text-shadow: 0 0 10px rgba(61, 122, 184, 0.3);
         }
 
-        .header-right p:last-child {
-            font-size: 48px;
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Page Sections */
+        .page {
+            display: none;
+            animation: pageEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes pageEnter {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hero Section with Animation */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f1823 100%);
+            color: var(--text-light);
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid var(--primary-blue);
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(44, 90, 160, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(61, 122, 184, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(30px); }
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(44, 90, 160, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 7s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -15%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(61, 122, 184, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 9s ease-in-out infinite reverse;
+        }
+
+        @keyframes backgroundMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
             font-weight: 700;
-            color: #4ade80;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 2;
+            animation: slideInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Button Styles */
-        .button-group {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 32px;
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+            animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
         }
 
-        .btn {
-            padding: 16px 32px;
-            border: none;
-            border-radius: 12px;
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content Section */
+        .content-section {
+            padding: 3rem 0;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+            font-weight: 700;
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 1rem;
+            display: inline-block;
+            position: relative;
+            animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue), transparent);
+            animation: expandWidth 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes expandWidth {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        .subsection-title {
+            font-size: 1.4rem;
+            color: var(--primary-blue);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
             font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-family: 'Space Grotesk', sans-serif;
+            animation: fadeInLeft 0.6s ease;
         }
 
-        .btn-primary {
-            flex: 1;
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            color: white;
-            box-shadow: 0 20px 25px rgba(37, 99, 235, 0.3);
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(to right, #1d4ed8, #1e40af);
-            box-shadow: 0 25px 30px rgba(37, 99, 235, 0.4);
+        /* Cards with Enhanced Effects */
+        .card {
+            background: var(--text-light);
+            border: 1px solid var(--border-grey);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.6s ease;
         }
 
-        .btn-secondary {
-            background: #475569;
-            color: white;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .btn-secondary:hover {
-            background: #334155;
+        .card:hover {
+            box-shadow: 0 12px 24px rgba(44, 90, 160, 0.15);
+            transform: translateY(-8px);
+            border-color: var(--accent-blue);
         }
 
-        /* Grid Layout */
-        .grid {
+        /* Team Members */
+        .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-            margin-bottom: 32px;
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
-        @media (min-width: 768px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        /* Device Card */
-        .device-card {
-            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
-            border: 1px solid #475569;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: border-color 0.3s ease;
-        }
-
-        .device-card:hover {
-            border-color: #64748b;
-        }
-
-        .device-header {
-            background: linear-gradient(to right, #4f46e5, #9333ea);
-            padding: 16px;
-        }
-
-        .device-header h3 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .device-content {
-            padding: 16px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            max-height: 400px;
-        }
-
-        .booking-item {
-            background: rgba(30, 41, 59, 0.5);
-            border-left: 4px solid #10b981;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .booking-item p:first-child {
-            font-weight: 700;
-            color: white;
-        }
-
-        .booking-item .game {
-            color: #6ee7b7;
-            font-size: 13px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        .booking-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 8px;
-            gap: 8px;
-        }
-
-        .booking-info span:first-child {
-            color: #cbd5e1;
-            font-size: 12px;
-        }
-
-        .booking-info span:last-child {
-            font-family: 'JetBrains Mono', monospace;
-            color: #4ade80;
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        .btn-cancel {
-            width: 100%;
-            margin-top: 8px;
-            background: rgba(220, 38, 38, 0.3);
-            border: none;
-            color: #fca5a5;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .btn-cancel:hover {
-            background: rgba(220, 38, 38, 0.5);
-        }
-
-        .queue-section {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #475569;
-        }
-
-        .queue-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .queue-item {
-            background: rgba(71, 85, 105, 0.5);
-            border-left: 2px solid #eab308;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .queue-item-content {
-            flex: 1;
-        }
-
-        .queue-item-content p:first-child {
-            font-weight: 700;
-            color: white;
-            font-size: 13px;
-        }
-
-        .queue-item-content .game {
-            color: #fcd34d;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .queue-item-content .info {
-            color: #cbd5e1;
-            font-size: 11px;
-            margin-top: 4px;
-        }
-
-        .queue-item-content .wait-time {
-            color: #fb923c;
-            font-size: 11px;
-            font-weight: 700;
-            margin-top: 4px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .btn-remove {
-            color: #f87171;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: color 0.3s ease;
-        }
-
-        .btn-remove:hover {
-            color: #fca5a5;
-        }
-
-        .available-text {
-            color: #64748b;
-            font-size: 13px;
+        .team-member {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--text-light) 100%);
+            padding: 2rem;
+            border-radius: 0.8rem;
             text-align: center;
-            padding: 24px 0;
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.6s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Modal Styles */
-        .modal-overlay {
+        .team-member::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .team-member:hover::before {
+            left: 100%;
+        }
+
+        .team-member:hover {
+            background: var(--text-light);
+            box-shadow: 0 8px 24px rgba(44, 90, 160, 0.2);
+            transform: translateY(-10px);
+            border-left-color: var(--accent-blue);
+        }
+
+        .team-member h3 {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .team-member p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Charts & Tables */
+        .chart-container {
+            background: linear-gradient(135deg, var(--bg-light) 0%, rgba(44, 90, 160, 0.03) 100%);
+            border-radius: 0.8rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            border: 1px solid var(--border-grey);
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        /* Survey Timeline */
+        .survey-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .survey-item {
+            background: var(--bg-light);
+            border-left: 4px solid var(--border-grey);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInUp 0.6s ease;
+            position: relative;
+        }
+
+        .survey-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(44, 90, 160, 0.05));
+            border-radius: 0.5rem;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .survey-item:hover::before {
+            width: 100%;
+        }
+
+        .survey-item.active {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(39, 174, 96, 0.08), transparent);
+            box-shadow: 0 4px 16px rgba(39, 174, 96, 0.15);
+        }
+
+        .survey-item.expired {
+            border-left-color: var(--warning);
+            opacity: 0.75;
+        }
+
+        .survey-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .survey-status.active {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.3), rgba(39, 174, 96, 0.1));
+            color: var(--success);
+            box-shadow: 0 0 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .survey-status.expired {
+            background: rgba(230, 126, 34, 0.2);
+            color: var(--warning);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(39, 174, 96, 0);
+            }
+        }
+
+        .survey-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .survey-title {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Eye-Catching Buttons */
+        .survey-button {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
+            color: var(--text-light);
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(44, 90, 160, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .survey-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .survey-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .survey-button:hover {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2c5aa0 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.4);
+        }
+
+        .survey-button:active {
+            transform: translateY(-2px);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid var(--border-grey);
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--text-light);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(44, 90, 160, 0.15);
+            background: linear-gradient(135deg, rgba(44, 90, 160, 0.02), transparent);
+            transform: translateY(-2px);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Eye-Catching Submit Button */
+        .form-button {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
+            color: var(--text-light);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.35);
+            letter-spacing: 0.5px;
+        }
+
+        .form-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .form-button:hover::before {
+            left: 100%;
+        }
+
+        .form-button:hover {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2c5aa0 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(44, 90, 160, 0.45);
+        }
+
+        .form-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1.2rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            animation: slideInDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid;
+        }
+
+        .alert.success {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(39, 174, 96, 0.05));
+            color: var(--success);
+            border-left-color: var(--success);
+            display: block;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.1);
+        }
+
+        .alert.info {
+            background: linear-gradient(135deg, rgba(44, 90, 160, 0.15), rgba(44, 90, 160, 0.05));
+            color: var(--primary-blue);
+            border-left-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.1);
+        }
+
+        /* Reports List */
+        .reports-container {
+            margin-top: 2rem;
+        }
+
+        .report-item {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--text-light) 100%);
+            border: 1px solid var(--border-grey);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInUp 0.6s ease;
+        }
+
+        .report-item:hover {
+            box-shadow: 0 8px 20px rgba(44, 90, 160, 0.15);
+            transform: translateY(-4px);
+            border-left-color: var(--accent-blue);
+        }
+
+        .report-item h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .report-item p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .report-meta {
+            color: #999;
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        .no-reports {
+            background: linear-gradient(135deg, var(--bg-light), rgba(44, 90, 160, 0.05));
+            border: 2px dashed var(--border-grey);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #666;
+            border-radius: 0.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f1621 100%);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        footer p:hover {
+            text-shadow: 0 0 20px rgba(61, 122, 184, 0.5);
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: linear-gradient(135deg, rgba(230, 126, 34, 0.15), rgba(230, 126, 34, 0.05));
+            border-left: 4px solid var(--warning);
+            padding: 1.2rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            color: #d35400;
+            font-size: 0.9rem;
+            animation: slideInLeft 0.6s ease;
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-menu {
+                gap: 1rem;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-3 {
+            margin-top: 2rem;
+        }
+
+        .mt-2 {
+            margin-top: 1rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+
+        .max-width-600 {
+            max-width: 600px;
+        }
+
+        .max-width-800 {
+            max-width: 800px;
+        }
+
+        /* Fade In Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Modal/Popup Styles */
+        .modal {
             display: none;
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeInBackground 0.3s ease;
+        }
+
+        @keyframes fadeInBackground {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            padding: 3rem;
+            border-radius: 1.2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 60vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(44, 90, 160, 0.3);
+            animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid var(--primary-blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue), var(--primary-blue));
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .modal-message {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .modal-highlight {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+        }
+
+        .modal-timeline {
+            background: linear-gradient(135deg, rgba(44, 90, 160, 0.1), rgba(61, 122, 184, 0.05));
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 50;
-            padding: 16px;
+            margin-right: 1rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
-        .modal-overlay.active {
+        .timeline-text {
+            color: #666;
+            text-align: left;
+        }
+
+        .modal-footer {
             display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        .modal {
-            background: #1e293b;
-            border: 1px solid #475569;
-            border-radius: 24px;
-            padding: 32px;
-            max-width: 420px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .modal-header h3 {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .btn-close {
-            background: none;
+        .modal-button {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
+            color: white;
             border: none;
-            color: #94a3b8;
+            padding: 0.9rem 2rem;
+            border-radius: 0.5rem;
             cursor: pointer;
-            font-size: 24px;
-            transition: color 0.3s ease;
-        }
-
-        .btn-close:hover {
-            color: white;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            background: #334155;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            font-size: 14px;
-            font-family: 'Space Grotesk', sans-serif;
-            transition: ring 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px #3b82f6;
-        }
-
-        .duration-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .duration-btn {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #475569;
-            color: #cbd5e1;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .duration-btn.active {
-            background: #2563eb;
-            color: white;
-        }
-
-        .duration-btn:hover:not(.active) {
-            background: #334155;
-        }
-
-        .price-display {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid #10b981;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
-        }
-
-        .price-display p:first-child {
-            color: #cbd5e1;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-
-        .price-display p:last-child {
-            font-size: 32px;
+            font-size: 1rem;
             font-weight: 700;
-            color: #4ade80;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(44, 90, 160, 0.3);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
+        .modal-button:hover {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2c5aa0 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.4);
         }
 
-        .modal-actions .btn {
-            flex: 1;
-            padding: 12px;
+        .modal-button:active {
+            transform: translateY(-1px);
         }
 
-        .btn-confirm {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-confirm:hover {
-            background: #059669;
-        }
-
-        .modal-actions .btn-secondary {
-            background: #475569;
-        }
-
-        .modal-actions .btn-secondary:hover {
-            background: #334155;
-        }
-
-        /* Queue Promotion Modal */
-        .queue-preview {
-            background: rgba(71, 85, 105, 0.5);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .queue-preview-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #94a3b8;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-
-        .queue-preview-item {
-            background: rgba(30, 41, 59, 0.5);
-            border-left: 2px solid #eab308;
-            border-radius: 8px;
-            padding: 12px;
-        }
-
-        .queue-preview-item p {
-            margin: 0;
-        }
-
-        .queue-preview-item p:first-child {
-            font-weight: 700;
-            color: white;
-        }
-
-        .queue-preview-item .game {
-            color: #fcd34d;
-            font-size: 13px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        .queue-preview-item .info {
-            color: #cbd5e1;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .btn-start-queue {
-            background: #10b981;
-            color: white;
-            padding: 16px;
-            font-weight: 700;
-        }
-
-        .btn-start-queue:hover {
-            background: #059669;
-        }
-
-        .btn-new-booking {
-            background: #2563eb;
-            color: white;
-            padding: 16px;
-            font-weight: 700;
-        }
-
-        .btn-new-booking:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-skip {
-            background: #475569;
-            color: white;
-            padding: 8px;
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        .btn-skip:hover {
-            background: #334155;
-        }
-
-        /* Settings Modal */
-        .settings-section {
-            background: rgba(71, 85, 105, 0.3);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .settings-section h4 {
-            font-weight: 700;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-
-        .settings-section:first-of-type h4 {
-            color: #60a5fa;
-        }
-
-        .settings-section:last-of-type h4 {
-            color: #a855f7;
-        }
-
-        .settings-section .form-group {
-            margin-bottom: 12px;
-        }
-
-        .settings-section .form-group label {
-            margin-bottom: 6px;
+        .team-note {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-grey);
+            font-style: italic;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-left">
-                <i class="fas fa-gamepad gamepad-icon"></i>
-                <div class="header-left-content">
-                    <h1>ICEMIRE</h1>
-                    <p>Cashier - Bhavay</p>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Crime Reporter</div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active" data-page="home">Home</a></li>
+                <li><a href="#team" class="nav-link" data-page="team">Team</a></li>
+                <li><a href="#data" class="nav-link" data-page="data">Crime Data</a></li>
+                <li><a href="#surveys" class="nav-link" data-page="surveys">Surveys</a></li>
+                <li><a href="#report" class="nav-link" data-page="report">Report Crime</a></li>
+                <li><a href="#reports" class="nav-link" data-page="reports">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HOME PAGE -->
+    <section id="home" class="page active">
+        <div class="hero">
+            <h1>Crime Reporter</h1>
+            <p>A collaborative study aimed at examining crime patterns, public perception, and community safety in the Delhi National Capital Region</p>
+        </div>
+
+        <div class="container content-section">
+            <div class="card">
+                <h2 class="section-title">Understanding Crime in Delhi NCR</h2>
+                <p style="margin: 1rem 0; line-height: 1.8;">
+                    The Delhi National Capital Region (NCR) encompasses Delhi, Noida, Gurgaon, and surrounding areas, serving as India's political, economic, and cultural hub. Like many major metropolitan areas globally, Delhi NCR faces complex challenges related to crime and public safety. This project examines these issues through a balanced, data-driven approach to understand the types of crimes, their trends, and their impact on society.
+                </p>
+                <p style="margin: 1rem 0; line-height: 1.8;">
+                    Our research combines statistical analysis, public perception surveys, and anonymous community reporting to create a comprehensive understanding of the crime landscape. This educational project aims to inform students and educators about crime prevention, community engagement, and policy implications
+                </p>
+                <strong>Our website aims to do the following things</strong>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 3rem 0;">
+                <div class="card text-center">
+                    <h3 style="color: var(--primary-blue); font-size: 1.3rem; margin-bottom: 0.5rem;">Data Analysis</h3>
+                    <p>Examine crime statistics and trends across Delhi NCR with comprehensive data visualizations.</p>
+                </div>
+                <div class="card text-center">
+                    <h3 style="color: var(--primary-blue); font-size: 1.3rem; margin-bottom: 0.5rem;">Public Surveys</h3>
+                    <p>Participate in our anonymous surveys to share perceptions about public safety and crime.</p>
+                </div>
+                <div class="card text-center">
+                    <h3 style="color: var(--primary-blue); font-size: 1.3rem; margin-bottom: 0.5rem;">Anonymous Reporting</h3>
+                    <p>Share incident reports anonymously to contribute to community awareness and data collection.</p>
                 </div>
             </div>
-            <div class="header-right">
-                <p>Total Revenue</p>
-                <p id="totalRevenueDisplay">₹0</p>
+
+            <div class="disclaimer">
+                <strong>Educational Purpose:</strong> This website is designed for educational purposes only as part of a Global Perspectives school project. All data presented is for informational and academic discussion.
             </div>
         </div>
+    </section>
 
-        <!-- Action Buttons -->
-        <div class="button-group">
-            <button class="btn btn-primary" onclick="openBookingModal()">
-                <i class="fas fa-plus"></i> New Gaming Session
-            </button>
-            <button class="btn btn-secondary" onclick="openSettingsModal()">
-                <i class="fas fa-cog"></i> Settings
-            </button>
+    <!-- TEAM PAGE -->
+    <section id="team" class="page">
+        <div class="hero">
+            <h1>Project Team</h1>
+            <p>Meet the students behind this Global Perspectives collaborative project</p>
         </div>
 
-        <!-- Device Cards Grid -->
-        <div class="grid" id="devicesGrid"></div>
+        <div class="container content-section">
+            <div class="card">
+                <p style="margin-bottom: 1.5rem; line-height: 1.8;">
+                    This project is a collaborative effort by three students curious about the root cause of crime and types of crime in the Dehli NCR region. Working together, we researched crime patterns in Delhi NCR, designed surveys, analyzed data, and created this educational resource to raise awareness about public safety issues.
+                </p>
+            </div>
+
+            <h2 class="section-title">Project Members</h2>
+
+            <div class="team-grid">
+                <div class="team-member">
+                    <h3>Parth Bansal</h3>
+                    <p>Project Coordinator</p>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #999;">Coordinated project timeline, research activities, and cross-team communication</p>
+                </div>
+                <div class="team-member">
+                    <h3>Arnav Hooda</h3>
+                    <p>Survey Management</p>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #999;">Designed, distributed, and analyzed survey data for community perception research</p>
+                </div>
+                <div class="team-member">
+                    <h3>Utkarsh Bidhan</h3>
+                    <p>Website Developer & Management</p>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #999;">Developed and managed the project website, technical infrastructure, and data visualization</p>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">About This Project</h3>
+                <p style="margin-bottom: 0.5rem;">
+                    <strong>Topic:</strong> Crime in Delhi NCR - A Data-Driven Analysis
+                </p>
+                <p style="margin-bottom: 0.5rem;">
+                    <strong>Objectives:</strong> To understand the nature of crime in Delhi NCR, analyze trends, examine public perception, and explore potential solutions through community engagement.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CRIME DATA PAGE -->
+    <section id="data" class="page">
+        <div class="hero">
+            <h1>Crime Data & Trends</h1>
+            <p>Comprehensive analysis of crime patterns in Delhi NCR</p>
+        </div>
+
+        <div class="container content-section">
+            <div class="disclaimer">The following data is not primary data collected by the team, but is secondary data collected by trusted sources
+                
+            </div>
+
+            <!-- Types of Crimes -->
+            <div class="card">
+                <h2 class="subsection-title">Types of Crimes</h2>
+                <p style="margin-bottom: 1.5rem;">
+                    Crime in Delhi NCR encompasses various categories. The following data represents reported crime cases over approximately one year:
+                </p>
+
+                <div class="chart-container">
+                    <canvas id="crimeTypesChart" style="max-height: 400px;"></canvas>
+                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                        <strong>Chart Title:</strong> Distribution of Crime Types in Delhi NCR
+                    </p>
+                </div>
+
+                <div style="margin-top: 2rem; overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background: var(--bg-light); border-bottom: 2px solid var(--primary-blue);">
+                                <th style="padding: 0.8rem; text-align: left; color: var(--primary-dark); font-weight: 600;">Type of Crime</th>
+                                <th style="padding: 0.8rem; text-align: right; color: var(--primary-dark); font-weight: 600;">Number of Cases</th>
+                                <th style="padding: 0.8rem; text-align: right; color: var(--primary-dark); font-weight: 600;">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Theft</td>
+                                <td style="padding: 0.8rem; text-align: right;">42,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">18.1%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">Assault</td>
+                                <td style="padding: 0.8rem; text-align: right;">31,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">13.4%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Cyber Crime</td>
+                                <td style="padding: 0.8rem; text-align: right;">27,800</td>
+                                <td style="padding: 0.8rem; text-align: right;">12.0%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">Domestic Violence</td>
+                                <td style="padding: 0.8rem; text-align: right;">22,600</td>
+                                <td style="padding: 0.8rem; text-align: right;">9.7%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Robbery</td>
+                                <td style="padding: 0.8rem; text-align: right;">18,500</td>
+                                <td style="padding: 0.8rem; text-align: right;">8.0%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">Sexual Offences</td>
+                                <td style="padding: 0.8rem; text-align: right;">14,200</td>
+                                <td style="padding: 0.8rem; text-align: right;">6.1%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Drug-related Crimes</td>
+                                <td style="padding: 0.8rem; text-align: right;">9,400</td>
+                                <td style="padding: 0.8rem; text-align: right;">4.1%</td>
+                            </tr>
+                            <tr style="background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">Murder</td>
+                                <td style="padding: 0.8rem; text-align: right;">520</td>
+                                <td style="padding: 0.8rem; text-align: right;">0.2%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p style="margin-top: 1.5rem; font-size: 0.85rem; color: #999;">
+                    <strong>Source:</strong> National Crime Records Bureau (NCRB), Crime in India Report (2022–2023)
+                </p>
+            </div>
+
+            <!-- Trends Over Years -->
+            <div class="card">
+                <h2 class="subsection-title">Trends Over Recent Years</h2>
+                <p style="margin-bottom: 1.5rem;">
+                    Crime patterns in Delhi NCR have shown increasing trends in recent years, influenced by factors such as urbanization, technology, law enforcement policies, and socioeconomic conditions.
+                </p>
+
+                <div class="chart-container">
+                    <canvas id="trendChart" style="max-height: 400px;"></canvas>
+                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                        <strong>Chart Title:</strong> Crime Trends in Delhi NCR (2019–2024)
+                    </p>
+                </div>
+
+                <div style="margin-top: 2rem; overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background: var(--bg-light); border-bottom: 2px solid var(--primary-blue);">
+                                <th style="padding: 0.8rem; text-align: left; color: var(--primary-dark); font-weight: 600;">Year</th>
+                                <th style="padding: 0.8rem; text-align: right; color: var(--primary-dark); font-weight: 600;">Total Reported Crimes</th>
+                                <th style="padding: 0.8rem; text-align: right; color: var(--primary-dark); font-weight: 600;">Year-on-Year Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">2019</td>
+                                <td style="padding: 0.8rem; text-align: right;">225,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">—</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">2020</td>
+                                <td style="padding: 0.8rem; text-align: right;">198,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">-12.0%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">2021</td>
+                                <td style="padding: 0.8rem; text-align: right;">210,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">+6.1%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">2022</td>
+                                <td style="padding: 0.8rem; text-align: right;">236,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">+12.4%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">2023</td>
+                                <td style="padding: 0.8rem; text-align: right;">258,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">+9.3%</td>
+                            </tr>
+                            <tr style="background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">2024</td>
+                                <td style="padding: 0.8rem; text-align: right;">274,000</td>
+                                <td style="padding: 0.8rem; text-align: right;">+6.2%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p style="margin-top: 1.5rem; font-size: 0.85rem; color: #999;">
+                    <strong>Sources:</strong> NCRB Crime in India Reports (2019–2023), Delhi Police Annual Statistical Reports, Ministry of Home Affairs (MHA), Government of India
+                </p>
+                
+                <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 0.3rem; margin-top: 1.5rem; border-left: 4px solid var(--warning);">
+                    <p style="color: #d35400; font-size: 0.9rem; margin: 0;">
+                        <strong>Key Observation:</strong> The data shows a notable dip in 2020 (likely due to pandemic-related lockdowns), followed by a sustained increase from 2021 onwards, indicating rising crime rates in recent years.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Impact on Society -->
+            <div class="card">
+                <h2 class="subsection-title">Impact on Society</h2>
+                <p style="margin-bottom: 1.5rem;">
+                    Crime in Delhi NCR has multifaceted impacts on society. Based on perception-based studies and surveys, the following represents how crime affects different aspects of community life:
+                </p>
+
+                <div class="chart-container">
+                    <canvas id="impactChart" style="max-height: 400px;"></canvas>
+                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                        <strong>Chart Title:</strong> Perceived Impact of Crime on Society in Delhi NCR
+                    </p>
+                </div>
+
+                <div style="margin-top: 2rem; overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background: var(--bg-light); border-bottom: 2px solid var(--primary-blue);">
+                                <th style="padding: 0.8rem; text-align: left; color: var(--primary-dark); font-weight: 600;">Impact Area</th>
+                                <th style="padding: 0.8rem; text-align: right; color: var(--primary-dark); font-weight: 600;">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Fear and Reduced Sense of Safety</td>
+                                <td style="padding: 0.8rem; text-align: right;">32%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">Mental Health Issues</td>
+                                <td style="padding: 0.8rem; text-align: right;">21%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Economic Loss</td>
+                                <td style="padding: 0.8rem; text-align: right;">18%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey); background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">Reduced Mobility (especially women)</td>
+                                <td style="padding: 0.8rem; text-align: right;">15%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-grey);">
+                                <td style="padding: 0.8rem;">Lack of Trust in Institutions</td>
+                                <td style="padding: 0.8rem; text-align: right;">9%</td>
+                            </tr>
+                            <tr style="background: var(--bg-light);">
+                                <td style="padding: 0.8rem;">No Direct Impact</td>
+                                <td style="padding: 0.8rem; text-align: right;">5%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 0.3rem; border-left: 4px solid var(--primary-blue);">
+                        <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">📊 Economic Impact</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Direct losses to businesses, property damage, increased security expenses, and reduced economic activity in affected areas.</p>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 0.3rem; border-left: 4px solid var(--primary-blue);">
+                        <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">🛡️ Public Safety</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Increased concerns about personal security, self-imposed mobility restrictions, and reduced quality of life.</p>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 0.3rem; border-left: 4px solid var(--primary-blue);">
+                        <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">🧠 Psychological Impact</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Anxiety, stress, depression, and PTSD affecting residents' mental health and overall well-being.</p>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 0.3rem; border-left: 4px solid var(--primary-blue);">
+                        <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">👥 Community Relations</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Erosion of trust in institutions, police relations, and reduced community cohesion.</p>
+                    </div>
+                </div>
+
+                <p style="margin-top: 1.5rem; font-size: 0.85rem; color: #999;">
+                    <strong>Sources:</strong> Primary survey data (student-conducted GP survey), National Council of Applied Economic Research (NCAER) social impact studies, United Nations Office on Drugs and Crime (UNODC) urban crime impact reports
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SURVEYS PAGE -->
+    <section id="surveys" class="page">
+        <div class="hero">
+            <h1>Public Crime Perception Surveys</h1>
+            <p>Anonymous surveys to understand community perspectives on crime and safety</p>
+        </div>
+
+        <div class="container content-section">
+            <div class="alert info" style="display: block;">
+                All survey responses are completely anonymous. Your personal information is never collected or stored.
+            </div>
+
+            <h2 class="section-title">Survey Timeline</h2>
+
+            <div class="survey-timeline">
+                <div class="survey-item expired">
+                    <div class="survey-status expired">EXPIRED</div>
+                    <div class="survey-date">January 2026 - March 2026</div>
+                    <div class="survey-title">Safety Perception in Your Neighborhood</div>
+                    <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">
+                        This survey has concluded. Thank you to all participants who contributed their insights.
+                    </p>
+                </div>
+
+                <div class="survey-item expired">
+                    <div class="survey-status expired">EXPIRED</div>
+                    <div class="survey-date">October 2025 - December 2025</div>
+                    <div class="survey-title">Crime Awareness and Reporting Willingness</div>
+                    <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">
+                        This survey has concluded. Thank you to all participants who contributed their insights.
+                    </p>
+                </div>
+
+                <div class="survey-item expired">
+                    <div class="survey-status expired">EXPIRED</div>
+                    <div class="survey-date">July 2025 - September 2025</div>
+                    <div class="survey-title">Public Perception of Police Effectiveness</div>
+                    <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">
+                        This survey has concluded. Thank you to all participants who contributed their insights.
+                    </p>
+                </div>
+
+                <div class="survey-item expired">
+                    <div class="survey-status expired">EXPIRED</div>
+                    <div class="survey-date">April 2025 - June 2025</div>
+                    <div class="survey-title">Community Safety Initiatives and Awareness</div>
+                    <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">
+                        This survey has concluded. Thank you to all participants who contributed their insights.
+                    </p>
+                </div>
+
+                <div class="survey-item active">
+                    <div class="survey-status active">ACTIVE</div>
+                    <div class="survey-date">January 2026 - Ongoing</div>
+                    <div class="survey-title">Current Crime Concerns and Community Safety Perceptions</div>
+                    <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">
+                        Share your views on crime and safety in Delhi NCR. Your anonymous response will help us understand community perspectives and concerns. The survey takes approximately 5-10 minutes to complete.
+                    </p>
+                    <a href="https://forms.gle/nk2oQt5VdMCHUstG7" target="_blank" class="survey-button">
+                        Take the Survey →
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">About Our Surveys</h3>
+                <p style="margin-bottom: 0.5rem;">
+                    <strong>Purpose:</strong> To gather anonymous feedback on public perception of crime, safety concerns, and community engagement in crime prevention.
+                </p>
+                <p style="margin-bottom: 0.5rem;">
+                    <strong>Privacy:</strong> All responses are completely anonymous. We do not collect names, contact information, or any personally identifiable data.
+                </p>
+                <p style="margin-bottom: 0.5rem;">
+                    <strong>Duration:</strong> Each survey takes 5-10 minutes to complete.
+                </p>
+                <p style="margin-bottom: 0.5rem;">
+                    <strong>Participation:</strong> Participation is voluntary and optional. Your responses help us understand community perspectives on crime and safety.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- REPORT CRIME PAGE -->
+    <section id="report" class="page">
+        <div class="hero">
+            <h1>Report a Crime Anonymously</h1>
+            <p>Share incident reports to contribute to community awareness and data collection</p>
+        </div>
+
+        <div class="container content-section">
+            <div class="max-width-800" style="margin: 0 auto;">
+                <div class="card">
+                    <div class="alert info" style="display: block;">
+                        This form is completely anonymous. We do not collect any personal information. Reports are unverified and used for educational and awareness purposes only.
+                    </div>
+
+                    <div id="reportSuccess" class="alert success" style="display: none;">
+                        <strong>Thank you!</strong> Your anonymous report has been submitted successfully. We appreciate your contribution to community awareness.
+                    </div>
+
+                    <form id="crimeReportForm">
+                        <div class="form-group">
+                            <label class="form-label">Type of Crime *</label>
+                            <select class="form-select" id="crimeType" required>
+                                <option value="">-- Select Crime Type --</option>
+                                <option value="theft">Theft / Burglary</option>
+                                <option value="assault">Assault / Violence</option>
+                                <option value="fraud">Fraud / Scam</option>
+                                <option value="robbery">Robbery</option>
+                                <option value="harassment">Harassment / Cybercrime</option>
+                                <option value="traffic">Traffic Violation</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Location (Optional)</label>
+                            <input type="text" class="form-input" id="location" placeholder="e.g., Connaught Place, Sector 31 Gurgaon" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description of Incident *</label>
+                            <textarea class="form-textarea" id="description" placeholder="Please describe what happened. Be as specific as possible without including personal details." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Date of Incident (Optional)</label>
+                            <input type="date" class="form-input" id="incidentDate" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Time of Incident (Optional)</label>
+                            <input type="time" class="form-input" id="incidentTime" />
+                        </div>
+
+                        <button type="submit" class="form-button">Submit Anonymous Report</button>
+                    </form>
+
+                    <div class="disclaimer" style="margin-top: 2rem;">
+                        <strong>Disclaimer:</strong> This is an anonymous reporting form for educational purposes. Reports submitted here are unverified and should not be considered as official crime complaints. For actual crime emergencies, please contact the police immediately.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REPORTS DISPLAY PAGE -->
+    <section id="reports" class="page">
+        <div class="hero">
+            <h1>Anonymous Crime Reports</h1>
+            <p>Community-submitted reports for awareness and analysis</p>
+        </div>
+
+        <div class="container content-section">
+            <div class="max-width-800" style="margin: 0 auto;">
+                <div class="disclaimer">
+                    <strong>Important Disclaimer:</strong> The following reports are unverified submissions from community members. They are displayed for awareness and educational purposes only. No personally identifiable information is shown. These reports should not be considered as official crime statistics or verified incidents.
+                </div>
+
+                <h2 class="subsection-title">Submitted Reports</h2>
+
+                <div class="reports-container" id="reportsContainer">
+                    <div class="no-reports" id="noReports">
+                        No reports submitted yet. Be the first to contribute your observations.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Submission Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Thank You, Hero!</h2>
+            <div class="modal-message">
+                Your report has been received and is now in our <span class="modal-highlight">review queue</span>. We're committed to maintaining a safe and trustworthy community.
+            </div>
+            
+            <div class="modal-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon">1</div>
+                    <div class="timeline-text"><strong>Now:</strong> Your report is securely stored</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon">2</div>
+                    <div class="timeline-text"><strong>24-48 hours:</strong> Initial review begins</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon">3</div>
+                    <div class="timeline-text"><strong>3-5 days:</strong> Final moderation & publication</div>
+                </div>
+            </div>
+
+            <p class="modal-message">
+                We carefully review each report to ensure it's appropriate and helps our community stay informed. Your voice matters!
+            </p>
+
+            <div class="modal-footer">
+                <button class="modal-button" onclick="closeReportModal()">Got It</button>
+            </div>
+
+            <div class="team-note">
+                We're a small but passionate team working to make a difference. Thank you for your patience and contribution!
+            </div>
+        </div>
     </div>
 
-    <!-- Booking Modal -->
-    <div class="modal-overlay" id="bookingModal">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h3>New Session</h3>
-                <button class="btn-close" onclick="closeBookingModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" id="customerName" placeholder="Enter name">
-            </div>
-
-            <div class="form-group">
-                <label>Game</label>
-                <select id="gameSelect">
-                    <option value="">Select a game...</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Duration</label>
-                <div class="duration-buttons">
-                    <button class="duration-btn active" onclick="selectDuration('first')" data-duration="first">
-                        <span id="firstDurationText">5 min (₹80)</span>
-                    </button>
-                    <button class="duration-btn" onclick="selectDuration('second')" data-duration="second">
-                        <span id="secondDurationText">8 min (₹150)</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Device (Optional)</label>
-                <select id="deviceSelect">
-                    <option value="">Auto-assign (Any available)</option>
-                </select>
-            </div>
-
-            <div class="price-display">
-                <p>Total Price</p>
-                <p id="priceDisplay">₹80</p>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-confirm" onclick="confirmBooking()">Confirm Booking</button>
-                <button class="btn btn-secondary" onclick="closeBookingModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h3>Settings</h3>
-                <button class="btn-close" onclick="closeSettingsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="settings-section">
-                <h4>Option 1</h4>
-                <div class="form-group">
-                    <label>Duration (minutes)</label>
-                    <input type="number" id="duration1" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Price (₹)</label>
-                    <input type="number" id="price1" min="0">
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h4>Option 2</h4>
-                <div class="form-group">
-                    <label>Duration (minutes)</label>
-                    <input type="number" id="duration2" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Price (₹)</label>
-                    <input type="number" id="price2" min="0">
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-confirm" onclick="saveSettings()">Save</button>
-                <button class="btn btn-secondary" onclick="closeSettingsModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Queue Promotion Modal -->
-    <div class="modal-overlay" id="queuePromotionModal">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h3 id="deviceFreeName"></h3>
-            </div>
-            <p style="color: #cbd5e1; margin-bottom: 24px;">What would you like to do?</p>
-
-            <div class="queue-preview" id="queuePreview"></div>
-
-            <div class="modal-buttons">
-                <button class="btn btn-start-queue" onclick="promoteFromQueue()">
-                    <i class="fas fa-chevron-right"></i> Start Queue Member
-                </button>
-                <button class="btn btn-new-booking" onclick="goToNewBooking()">
-                    <i class="fas fa-plus"></i> New Booking
-                </button>
-                <button class="btn btn-skip" onclick="skipQueue()">Skip for Now</button>
-            </div>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer>
+        <p><strong>Crimes in Delhi NCR</strong></p>
+        <p>A collaborative educational project by Parth Bansal, Arnav Hooda, and Utkarsh Bidhan</p>
+    </footer>
 
     <script>
-        // Default devices and games
-        const devicesDefault = {
-            parth: {
-                name: 'Parth',
-                games: ['Forza Horizon', 'Fortnite', 'Grand Theft Auto 5', 'Street Fighter 6', 'Arena Breakout Infinite', 'God of War Ragnarok', 'Black Myth Wukong', 'Rust', 'Grand Theft Auto: San Andreas'],
-                slots: 1,
-                bookings: [],
-                queue: []
-            },
-            atishay: {
-                name: 'Atishay',
-                games: ['Aimlabs', 'Apex Legends', 'Arena Breakout Infinite', 'Counterstrike 2', 'Marvel Rivals', 'Rust', 'Assetto Corsa', 'Minecraft', 'Among Us', 'Rocket League'],
-                slots: 1,
-                bookings: [],
-                queue: []
-            },
-            bhavay: {
-                name: 'Bhavay',
-                games: ['Grand Theft Auto 5', 'Forza Horizon 5', 'Arena Breakout: Infinite', 'Black Myth Wukong', 'Batman Arkham Knight', 'Red Dead Redemption 2', 'Fortnite', 'Fall Guys', 'Grand Theft Auto: San Andreas'],
-                slots: 1,
-                bookings: [],
-                queue: []
-            },
-            ally: {
-                name: 'Ally',
-                games: ['GTA 5', 'Forza Horizon 5', 'Beach Buggy Racing', 'Fortnite', 'Red Dead Redemption 2', 'Arena Breakout', 'Black Myth Wukong', 'Rust'],
-                slots: 1,
-                bookings: [],
-                queue: []
+        // Initialize sample reports on first load
+        initializeSampleReports();
+
+        // Function to format date in Indian format (DD/MM/YYYY)
+        function formatDateIndian(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Function to convert YYYY-MM-DD to DD/MM/YYYY
+        function convertIncidentDateToIndian(dateString) {
+            if (!dateString || dateString === 'Not specified') return 'Not specified';
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Function to show report modal
+        function showReportPopup() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('show');
+        }
+
+        // Function to close report modal
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('reportModal');
+            if (event.target === modal) {
+                closeReportModal();
             }
-        };
+        });
 
-        // State
-        let deviceStates = loadDeviceStates();
-        let totalRevenue = loadTotalRevenue();
-        let durations = loadDurations();
-        let prices = loadPrices();
-        let selectedDuration = 'first';
-        let pendingQueueDevice = null;
-        let timerInterval = null;
+        // Page Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
 
-        // Load functions
-        function loadDeviceStates() {
-            try {
-                const saved = localStorage.getItem('cashier_deviceStates');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    const now = new Date();
-                    Object.keys(parsed).forEach(key => {
-                        // Convert endTime back to Date objects and filter out expired bookings
-                        parsed[key].bookings = parsed[key].bookings
-                            .map(b => ({
-                                ...b,
-                                endTime: new Date(b.endTime)
-                            }))
-                            .filter(b => b.endTime > now); // Remove expired bookings on load
-                    });
-                    return parsed;
-                }
-            } catch (e) {
-                console.log('Error loading saved state');
-            }
-            return JSON.parse(JSON.stringify(devicesDefault)); // Deep copy to avoid mutations
-        }
-
-        function loadTotalRevenue() {
-            try {
-                const saved = localStorage.getItem('cashier_totalRevenue');
-                return saved ? JSON.parse(saved) : 0;
-            } catch {
-                return 0;
-            }
-        }
-
-        function loadDurations() {
-            try {
-                const saved = localStorage.getItem('cashier_durations');
-                return saved ? JSON.parse(saved) : { first: 5, second: 8 };
-            } catch {
-                return { first: 5, second: 8 };
-            }
-        }
-
-        function loadPrices() {
-            try {
-                const saved = localStorage.getItem('cashier_prices');
-                return saved ? JSON.parse(saved) : { first: 80, second: 150 };
-            } catch {
-                return { first: 80, second: 150 };
-            }
-        }
-
-        // Save functions
-        function saveToLocalStorage() {
-            try {
-                localStorage.setItem('cashier_deviceStates', JSON.stringify(deviceStates));
-                localStorage.setItem('cashier_totalRevenue', JSON.stringify(totalRevenue));
-                localStorage.setItem('cashier_durations', JSON.stringify(durations));
-                localStorage.setItem('cashier_prices', JSON.stringify(prices));
-            } catch (e) {
-                console.log('Error saving to localStorage');
-            }
-        }
-
-        // Modal functions
-        function openBookingModal() {
-            document.getElementById('bookingModal').classList.add('active');
-            populateGameSelect();
-            populateDeviceSelect();
-            updatePriceDisplay();
-        }
-
-        function closeBookingModal() {
-            document.getElementById('bookingModal').classList.remove('active');
-            document.getElementById('customerName').value = '';
-            document.getElementById('gameSelect').value = '';
-            document.getElementById('deviceSelect').value = '';
-            selectedDuration = 'first';
-            updateDurationButtons();
-        }
-
-        function openSettingsModal() {
-            document.getElementById('settingsModal').classList.add('active');
-            document.getElementById('duration1').value = durations.first;
-            document.getElementById('price1').value = prices.first;
-            document.getElementById('duration2').value = durations.second;
-            document.getElementById('price2').value = prices.second;
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('active');
-        }
-
-        function saveSettings() {
-            durations.first = Math.max(1, Number(document.getElementById('duration1').value));
-            durations.second = Math.max(1, Number(document.getElementById('duration2').value));
-            prices.first = Math.max(0, Number(document.getElementById('price1').value));
-            prices.second = Math.max(0, Number(document.getElementById('price2').value));
-            saveToLocalStorage();
-            closeSettingsModal();
-            render();
-        }
-
-        function selectDuration(duration) {
-            selectedDuration = duration;
-            updateDurationButtons();
-            updatePriceDisplay();
-        }
-
-        function updateDurationButtons() {
-            document.querySelectorAll('.duration-btn').forEach((btn, idx) => {
-                const durationKey = idx === 0 ? 'first' : 'second';
-                if (durationKey === selectedDuration) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all links and pages
+                navLinks.forEach(l => l.classList.remove('active'));
+                pages.forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked link and corresponding page
+                link.classList.add('active');
+                const pageId = link.getAttribute('data-page');
+                document.getElementById(pageId).classList.add('active');
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
             });
+        });
+
+        // Initialize with sample reports if localStorage is empty
+        function initializeSampleReports() {
+            // Always clear and reinitialize with fresh Rohtak reports
+            localStorage.removeItem('crimeReports');
+            
+            const sampleReports = [
+                    {
+                        id: 1000,
+                        type: 'Theft',
+                        location: 'Railway Station Road, Rohtak',
+                        description: 'Mobile phone and wallet stolen from parked two-wheeler near railway station during evening hours.',
+                        date: '2026-01-08',
+                        time: '17:30',
+                        submittedAt: '08/01/2026'
+                    },
+                    {
+                        id: 1001,
+                        type: 'Assault',
+                        location: 'Sector 12, Rohtak',
+                        description: 'Verbal and minor physical altercation between neighbors over boundary dispute.',
+                        date: '2025-12-28',
+                        time: '18:45',
+                        submittedAt: '28/12/2025'
+                    },
+                    {
+                        id: 1002,
+                        type: 'Cyber Crime',
+                        location: 'Rohtak (Online scam)',
+                        description: 'Received fake bank alert link via WhatsApp, lost Rs. 8000 before realizing it was a scam.',
+                        date: '2025-12-15',
+                        time: '14:20',
+                        submittedAt: '16/12/2025'
+                    },
+                    {
+                        id: 1003,
+                        type: 'Robbery',
+                        location: 'Market Area, Rohtak',
+                        description: 'Snatching of handbag by two-wheeler riders near main market. Victim chased but attackers escaped.',
+                        date: '2025-12-10',
+                        time: '19:15',
+                        submittedAt: '10/12/2025'
+                    },
+                    {
+                        id: 1004,
+                        type: 'Theft',
+                        location: 'Sector 8, Rohtak',
+                        description: 'Bicycle stolen from residential society parking area at night. No CCTV coverage in that zone.',
+                        date: '2025-11-25',
+                        time: 'Not specified',
+                        submittedAt: '25/11/2025'
+                    },
+                    {
+                        id: 1005,
+                        type: 'Domestic Violence',
+                        location: 'Rohtak Residential Area',
+                        description: 'Domestic dispute between family members. Neighbors intervened and situation was resolved peacefully.',
+                        date: '2025-11-18',
+                        time: '21:00',
+                        submittedAt: '19/11/2025'
+                    },
+                    {
+                        id: 1006,
+                        type: 'Fraud',
+                        location: 'Rohtak',
+                        description: 'Online purchase fraud - paid for laptop but received a non-functional device. Seller unavailable for refund.',
+                        date: '2025-11-12',
+                        time: 'Not specified',
+                        submittedAt: '14/11/2025'
+                    },
+                    {
+                        id: 1007,
+                        type: 'Harassment',
+                        location: 'Rohtak',
+                        description: 'Repeated unwanted calls and messages from unknown number. Contacted mobile operator for assistance.',
+                        date: '2025-11-05',
+                        time: 'Various',
+                        submittedAt: '06/11/2025'
+                    },
+                    {
+                        id: 1009,
+                        type: 'Assault',
+                        location: 'Bus Stand, Rohtak',
+                        description: 'Physical altercation between individuals near bus stand. Police intervened and dispersed crowd.',
+                        date: '2025-10-22',
+                        time: '20:30',
+                        submittedAt: '23/10/2025'
+                    },
+                    {
+                        id: 1010,
+                        type: 'Robbery',
+                        location: 'Sadar Bazaar, Rohtak',
+                        description: 'Mugging incident - victim pushed and robbed of mobile phone and cash near market area.',
+                        date: '2025-10-18',
+                        time: '17:45',
+                        submittedAt: '18/10/2025'
+                    },
+                    {
+                        id: 1011,
+                        type: 'Cyber Crime',
+                        location: 'Rohtak (Online)',
+                        description: 'Social media account hacked, fraudster sent money requests to friends and family using victim\'s profile.',
+                        date: '2025-10-15',
+                        time: '10:00',
+                        submittedAt: '15/10/2025'
+                    },
+                    {
+                        id: 1013,
+                        type: 'Theft',
+                        location: 'Railway Station, Rohtak',
+                        description: 'Pickpocketing incident - wallet stolen from traveler\'s bag while waiting for train.',
+                        date: '2025-10-08',
+                        time: '08:30',
+                        submittedAt: '08/10/2025'
+                    },
+                    {
+                        id: 1014,
+                        type: 'Sexual Offences',
+                        location: 'Rohtak (location withheld for privacy)',
+                        description: 'Serious incident reported. Victim being supported by counseling services. Case under investigation.',
+                        date: '2025-10-05',
+                        time: 'Not specified',
+                        submittedAt: '06/10/2025'
+                    },
+                    {
+                        id: 1015,
+                        type: 'Assault',
+                        location: 'GT Road, Rohtak',
+                        description: 'Road rage incident - argument between drivers escalated to physical confrontation at traffic light.',
+                        date: '2025-09-20',
+                        time: '18:00',
+                        submittedAt: '20/09/2025'
+                    },
+                    {
+                        id: 1016,
+                        type: 'Fraud',
+                        location: 'Rohtak',
+                        description: 'Rental apartment fraud - paid full deposit to fake landlord. No proper legal documentation provided.',
+                        date: '2025-08-28',
+                        time: 'Not specified',
+                        submittedAt: '30/08/2025'
+                    },
+                    {
+                        id: 1017,
+                        type: 'Theft',
+                        location: 'City Center, Rohtak',
+                        description: 'Bag snatching incident in shopping area during evening hours. Thieves fled on motorcycle.',
+                        date: '2025-07-15',
+                        time: '19:20',
+                        submittedAt: '16/07/2025'
+                    },
+                    {
+                        id: 1018,
+                        type: 'Harassment',
+                        location: 'Rohtak (Online)',
+                        description: 'Cyberbullying and threatening comments from anonymous account on social media platform.',
+                        date: '2025-06-10',
+                        time: 'Continuous',
+                        submittedAt: '12/06/2025'
+                    }
+                ];
+                
+                localStorage.setItem('crimeReports', JSON.stringify(sampleReports));
         }
 
-        function updatePriceDisplay() {
-            document.getElementById('priceDisplay').textContent = `₹${prices[selectedDuration]}`;
-        }
+        // Crime Report Form Handling
+        const crimeReportForm = document.getElementById('crimeReportForm');
 
-        function populateGameSelect() {
-            const allGames = [...new Set(Object.values(devicesDefault).flatMap(d => d.games))].sort();
-            const select = document.getElementById('gameSelect');
-            select.innerHTML = '<option value="">Select a game...</option>';
-            allGames.forEach(game => {
-                const option = document.createElement('option');
-                option.value = game;
-                option.textContent = game;
-                select.appendChild(option);
-            });
-        }
+        crimeReportForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form values
+            const crimeType = document.getElementById('crimeType').value;
+            const location = document.getElementById('location').value;
+            const description = document.getElementById('description').value;
+            const incidentDate = document.getElementById('incidentDate').value;
+            const incidentTime = document.getElementById('incidentTime').value;
+            
+            // Create report object
+            const report = {
+                id: Date.now(),
+                type: crimeType,
+                location: location || 'Not specified',
+                description: description,
+                date: incidentDate || 'Not specified',
+                time: incidentTime || 'Not specified',
+                submittedAt: formatDateIndian(new Date())
+            };
+            
+            // Get existing reports from localStorage
+            let reports = JSON.parse(localStorage.getItem('crimeReports')) || [];
+            
+            // Add new report
+            reports.push(report);
+            
+            // Save to localStorage
+            localStorage.setItem('crimeReports', JSON.stringify(reports));
+            
+            // Show charismatic popup
+            showReportPopup();
+            
+            // Reset form
+            crimeReportForm.reset();
+            
+            // Update reports display
+            displayReports();
+        });
 
-        function populateDeviceSelect() {
-            const select = document.getElementById('deviceSelect');
-            select.innerHTML = '<option value="">Auto-assign (Any available)</option>';
-            Object.entries(deviceStates).forEach(([key, device]) => {
-                const option = document.createElement('option');
-                option.value = key;
-                const status = device.bookings.length === 0 ? 'Available' : `Queue: ${device.queue.length}`;
-                option.textContent = `${device.name} (${status})`;
-                select.appendChild(option);
-            });
-        }
-
-        function confirmBooking() {
-            const customerName = document.getElementById('customerName').value;
-            const game = document.getElementById('gameSelect').value;
-            const specificDevice = document.getElementById('deviceSelect').value || null;
-
-            if (!customerName || !game) {
-                alert('Please fill all fields');
+        // Display Reports Function
+        function displayReports() {
+            const reportsContainer = document.getElementById('reportsContainer');
+            const noReports = document.getElementById('noReports');
+            
+            // Get reports from localStorage
+            let reports = JSON.parse(localStorage.getItem('crimeReports')) || [];
+            
+            if (reports.length === 0) {
+                reportsContainer.innerHTML = '<div class="no-reports" id="noReports">No reports submitted yet. Be the first to contribute your observations.</div>';
                 return;
             }
-
-            const duration = durations[selectedDuration];
-            const price = prices[selectedDuration];
-            const now = new Date();
-            const endTime = new Date(now.getTime() + duration * 60000);
-
-            let assignedDevice = specificDevice;
-
-            if (assignedDevice) {
-                if (!deviceStates[assignedDevice].games.some(g => g.toLowerCase() === game.toLowerCase())) {
-                    alert(`${deviceStates[assignedDevice].name} doesn't have ${game}!`);
-                    return;
-                }
-
-                if (deviceStates[assignedDevice].bookings.length > 0) {
-                    deviceStates[assignedDevice].queue.push({
-                        id: Date.now(),
-                        customerName,
-                        game,
-                        duration,
-                        price
-                    });
-                    alert(`Added to ${deviceStates[assignedDevice].name}'s queue!`);
-                } else {
-                    deviceStates[assignedDevice].bookings.push({
-                        id: Date.now(),
-                        customerName,
-                        game,
-                        duration,
-                        price,
-                        endTime
-                    });
-                    totalRevenue += price;
-                }
-            } else {
-                let foundDevice = null;
-                for (const [key, device] of Object.entries(deviceStates)) {
-                    if (device.bookings.length === 0 && device.games.some(g => g.toLowerCase() === game.toLowerCase())) {
-                        foundDevice = key;
-                        break;
-                    }
-                }
-
-                if (foundDevice) {
-                    deviceStates[foundDevice].bookings.push({
-                        id: Date.now(),
-                        customerName,
-                        game,
-                        duration,
-                        price,
-                        endTime
-                    });
-                    totalRevenue += price;
-                } else {
-                    let queueDevice = null;
-                    for (const [key, device] of Object.entries(deviceStates)) {
-                        if (device.games.some(g => g.toLowerCase() === game.toLowerCase())) {
-                            queueDevice = key;
-                            break;
-                        }
-                    }
-
-                    if (queueDevice) {
-                        deviceStates[queueDevice].queue.push({
-                            id: Date.now(),
-                            customerName,
-                            game,
-                            duration,
-                            price
-                        });
-                        alert('All devices busy! Added to queue.');
-                    } else {
-                        alert('No device has this game!');
-                        return;
-                    }
-                }
-            }
-
-            saveToLocalStorage();
-            closeBookingModal();
-            render();
-        }
-
-        function cancelBooking(deviceKey, bookingId) {
-            if (window.confirm('Cancel this booking?')) {
-                const booking = deviceStates[deviceKey].bookings.find(b => b.id === bookingId);
-                totalRevenue = Math.max(0, totalRevenue - booking.price);
-                deviceStates[deviceKey].bookings = deviceStates[deviceKey].bookings.filter(b => b.id !== bookingId);
-
-                if (deviceStates[deviceKey].queue.length > 0) {
-                    pendingQueueDevice = deviceKey;
-                    openQueuePromotionModal();
-                }
-
-                saveToLocalStorage();
-                render();
-            }
-        }
-
-        function removeFromQueue(deviceKey, queueId) {
-            deviceStates[deviceKey].queue = deviceStates[deviceKey].queue.filter(q => q.id !== queueId);
-            saveToLocalStorage();
-            render();
-        }
-
-        function promoteFromQueue() {
-            if (pendingQueueDevice && deviceStates[pendingQueueDevice].queue.length > 0) {
-                const nextInQueue = deviceStates[pendingQueueDevice].queue[0];
-                const endTime = new Date(Date.now() + nextInQueue.duration * 60000);
-                deviceStates[pendingQueueDevice].bookings.push({
-                    ...nextInQueue,
-                    endTime
-                });
-                deviceStates[pendingQueueDevice].queue = deviceStates[pendingQueueDevice].queue.slice(1);
-                totalRevenue += nextInQueue.price;
-                saveToLocalStorage();
-                closeQueuePromotionModal();
-                render();
-            }
-        }
-
-        function goToNewBooking() {
-            closeQueuePromotionModal();
-            openBookingModal();
-        }
-
-        function skipQueue() {
-            closeQueuePromotionModal();
-        }
-
-        function openQueuePromotionModal() {
-            if (pendingQueueDevice && deviceStates[pendingQueueDevice].queue.length > 0) {
-                document.getElementById('deviceFreeName').textContent = `${deviceStates[pendingQueueDevice].name} is Free!`;
-                const queueItem = deviceStates[pendingQueueDevice].queue[0];
-                const queuePreview = document.getElementById('queuePreview');
-                queuePreview.innerHTML = `
-                    <p class="queue-preview-title">Next in Queue:</p>
-                    <div class="queue-preview-item">
-                        <p>${queueItem.customerName}</p>
-                        <p class="game">${queueItem.game}</p>
-                        <p class="info">${queueItem.duration} min • ₹${queueItem.price}</p>
-                    </div>
-                `;
-                document.getElementById('queuePromotionModal').classList.add('active');
-            }
-        }
-
-        function closeQueuePromotionModal() {
-            document.getElementById('queuePromotionModal').classList.remove('active');
-            pendingQueueDevice = null;
-        }
-
-        // Utility functions
-        function getRemainingTime(endTime) {
-            const diff = Math.max(0, Math.floor((endTime - new Date()) / 1000));
-            const mins = Math.floor(diff / 60);
-            const secs = diff % 60;
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function getQueueWaitTime(device, queueIndex) {
-            let waitTime = 0;
-            if (device.bookings.length > 0) {
-                const currentBooking = device.bookings[0];
-                waitTime += Math.ceil((currentBooking.endTime - new Date()) / 1000 / 60);
-            }
-            for (let i = 0; i < queueIndex; i++) {
-                waitTime += device.queue[i].duration;
-            }
-            return waitTime;
-        }
-
-        // Render function
-        function render() {
-            renderDevices();
-            renderRevenue();
-        }
-
-        function renderDevices() {
-            const grid = document.getElementById('devicesGrid');
-            grid.innerHTML = '';
-
-            Object.entries(deviceStates).forEach(([key, device]) => {
-                const card = document.createElement('div');
-                card.className = 'device-card';
-
-                let content = '';
-
-                if (device.bookings.length > 0) {
-                    content += '<div>';
-                    content += '<div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #475569;">';
-
-                    device.bookings.forEach(booking => {
-                        content += `
-                            <div class="booking-item">
-                                <p>${booking.customerName}</p>
-                                <p class="game">${booking.game}</p>
-                                <div class="booking-info">
-                                    <span>${booking.duration} min • ₹${booking.price}</span>
-                                    <span>${getRemainingTime(booking.endTime)}</span>
-                                </div>
-                                <button class="btn-cancel" onclick="cancelBooking('${key}', ${booking.id})">Cancel</button>
-                            </div>
-                        `;
-                    });
-
-                    content += '</div>';
-
-                    if (device.queue.length > 0) {
-                        content += '<div class="queue-section">';
-                        content += `<p class="queue-title">QUEUE (${device.queue.length})</p>`;
-                        content += '<div>';
-
-                        device.queue.forEach((queueItem, idx) => {
-                            const waitTime = getQueueWaitTime(device, idx);
-                            content += `
-                                <div class="queue-item">
-                                    <div class="queue-item-content">
-                                        <p>#${idx + 1} ${queueItem.customerName}</p>
-                                        <p class="game">${queueItem.game}</p>
-                                        <p class="info">${queueItem.duration} min • ₹${queueItem.price}</p>
-                                        <p class="wait-time">Wait: ~${waitTime} min</p>
-                                    </div>
-                                    <button class="btn-remove" onclick="removeFromQueue('${key}', ${queueItem.id})">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            `;
-                        });
-
-                        content += '</div></div>';
-                    }
-
-                    content += '</div>';
-                } else {
-                    content = '<p class="available-text">Available</p>';
-                }
-
-                card.innerHTML = `
-                    <div class="device-header">
-                        <h3>${device.name}</h3>
-                    </div>
-                    <div class="device-content">
-                        ${content}
-                    </div>
-                `;
-
-                grid.appendChild(card);
-            });
-        }
-
-        function renderRevenue() {
-            document.getElementById('totalRevenueDisplay').textContent = `₹${totalRevenue}`;
-        }
-
-        // Timer to check for expired bookings and update queue wait times
-        function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
             
-            timerInterval = setInterval(() => {
-                let changed = false;
-                
-                Object.keys(deviceStates).forEach(key => {
-                    const expiredBookings = deviceStates[key].bookings.filter(b => new Date() >= b.endTime);
-                    if (expiredBookings.length > 0) {
-                        changed = true;
-                        deviceStates[key].bookings = deviceStates[key].bookings.filter(b => new Date() < b.endTime);
+            noReports.style.display = 'none';
+            
+            // Display reports in reverse order (newest first)
+            reportsContainer.innerHTML = reports.reverse().map(report => `
+                <div class="report-item">
+                    <h4>Crime Type: <span style="color: var(--primary-blue);">${getCrimeTypeLabel(report.type)}</span></h4>
+                    <p><strong>Location:</strong> ${report.location}</p>
+                    <p><strong>Description:</strong> ${report.description}</p>
+                    <p><strong>Incident Date:</strong> ${convertIncidentDateToIndian(report.date)}</p>
+                    <p><strong>Incident Time:</strong> ${report.time}</p>
+                    <div class="report-meta">Submitted on ${report.submittedAt}</div>
+                </div>
+            `).join('');
+        }
 
-                        if (deviceStates[key].queue.length > 0 && deviceStates[key].bookings.length === 0 && !pendingQueueDevice) {
-                            pendingQueueDevice = key;
-                            openQueuePromotionModal();
+        // Helper function to get crime type label
+        function getCrimeTypeLabel(type) {
+            const labels = {
+                'Theft': 'Theft / Burglary',
+                'Assault': 'Assault / Violence',
+                'Fraud': 'Fraud / Scam',
+                'Robbery': 'Robbery',
+                'Harassment': 'Harassment / Cybercrime',
+                'Cyber Crime': 'Cyber Crime',
+                'Domestic Violence': 'Domestic Violence',
+                'Sexual Offences': 'Sexual Offences',
+                'Traffic': 'Traffic Violation',
+                'Other': 'Other',
+                // Fallback for lowercase versions
+                'theft': 'Theft / Burglary',
+                'assault': 'Assault / Violence',
+                'fraud': 'Fraud / Scam',
+                'robbery': 'Robbery',
+                'harassment': 'Harassment / Cybercrime',
+                'traffic': 'Traffic Violation',
+                'other': 'Other'
+            };
+            return labels[type] || type;
+        }
+
+        // Display reports on page load
+        displayReports();
+
+        // Initialize Charts when DOM is ready
+        function initializeCharts() {
+            // Crime Types Bar Chart
+            const crimeTypesCtx = document.getElementById('crimeTypesChart');
+            if (crimeTypesCtx) {
+                new Chart(crimeTypesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Theft', 'Robbery', 'Assault', 'Cyber Crime', 'Sexual Offences', 'Domestic Violence', 'Drug-related Crimes', 'Murder'],
+                        datasets: [{
+                            label: 'Number of Cases',
+                            data: [42000, 18500, 31000, 27800, 14200, 22600, 9400, 520],
+                            backgroundColor: [
+                                '#2c5aa0',
+                                '#3d7ab8',
+                                '#5a8fd4',
+                                '#7ba3dc',
+                                '#9bb5e6',
+                                '#b8c8f0',
+                                '#d4ddf7',
+                                '#e8ecfb'
+                            ],
+                            borderColor: '#2c5aa0',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString();
+                                    }
+                                }
+                            }
                         }
                     }
                 });
-                
-                if (changed) {
-                    saveToLocalStorage(); // Save state when bookings expire
-                    render();
-                } else {
-                    // Update timers every second even without major changes
-                    renderDevices();
-                }
-            }, 1000);
+            }
+
+            // Crime Trends Line Chart
+            const trendCtx = document.getElementById('trendChart');
+            if (trendCtx) {
+                new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+                        datasets: [{
+                            label: 'Total Reported Crimes',
+                            data: [225000, 198000, 210000, 236000, 258000, 274000],
+                            borderColor: '#2c5aa0',
+                            backgroundColor: 'rgba(44, 90, 160, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#2c5aa0',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Impact Pie Chart
+            const impactCtx = document.getElementById('impactChart');
+            if (impactCtx) {
+                new Chart(impactCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Fear and Reduced Sense of Safety', 'Mental Health Issues', 'Economic Loss', 'Reduced Mobility', 'Lack of Trust in Institutions', 'No Direct Impact'],
+                        datasets: [{
+                            data: [32, 21, 18, 15, 9, 5],
+                            backgroundColor: [
+                                '#2c5aa0',
+                                '#3d7ab8',
+                                '#5a8fd4',
+                                '#7ba3dc',
+                                '#9bb5e6',
+                                '#d4ddf7'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
         }
 
-        // Close modals on overlay click
-        document.getElementById('bookingModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeBookingModal();
-            }
-        });
-
-        document.getElementById('settingsModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeSettingsModal();
-            }
-        });
-
-        document.getElementById('queuePromotionModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeQueuePromotionModal();
-            }
-        });
-
-        // Clean up expired bookings on initial load and save
-        function initializeApp() {
-            let changed = false;
-            const now = new Date();
-            
-            Object.keys(deviceStates).forEach(key => {
-                const beforeCount = deviceStates[key].bookings.length;
-                deviceStates[key].bookings = deviceStates[key].bookings.filter(b => b.endTime > now);
-                if (deviceStates[key].bookings.length !== beforeCount) {
-                    changed = true;
-                }
-            });
-            
-            if (changed) {
-                saveToLocalStorage();
-            }
-            
-            render();
-            startTimer();
+        // Initialize charts when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCharts);
+        } else {
+            initializeCharts();
         }
-
-        // Save data before page unload
-        window.addEventListener('beforeunload', function() {
-            saveToLocalStorage();
-        });
-
-        // Save data periodically as a backup (every 30 seconds)
-        setInterval(function() {
-            saveToLocalStorage();
-        }, 30000);
-
-        // Initial render and start timer
-        initializeApp();
     </script>
 </body>
 </html>
