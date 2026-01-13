@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICEMIRE Cashier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-left-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .header-left-content p {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .gamepad-icon {
+            font-size: 40px;
+            color: #60a5fa;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .header-right p:first-child {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .header-right p:last-child {
+            font-size: 48px;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            box-shadow: 0 20px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #1d4ed8, #1e40af);
+            box-shadow: 0 25px 30px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Device Card */
+        .device-card {
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            border: 1px solid #475569;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.3s ease;
+        }
+
+        .device-card:hover {
+            border-color: #64748b;
+        }
+
+        .device-header {
+            background: linear-gradient(to right, #4f46e5, #9333ea);
+            padding: 16px;
+        }
+
+        .device-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .device-content {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .booking-item {
+            background: rgba(30, 41, 59, 0.5);
+            border-left: 4px solid #10b981;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .booking-item p:first-child {
+            font-weight: 700;
+            color: white;
+        }
+
+        .booking-item .game {
+            color: #6ee7b7;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .booking-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            gap: 8px;
+        }
+
+        .booking-info span:first-child {
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        .booking-info span:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: #4ade80;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .btn-cancel {
+            width: 100%;
+            margin-top: 8px;
+            background: rgba(220, 38, 38, 0.3);
+            border: none;
+            color: #fca5a5;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(220, 38, 38, 0.5);
+        }
+
+        .queue-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #475569;
+        }
+
+        .queue-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .queue-item {
+            background: rgba(71, 85, 105, 0.5);
+            border-left: 2px solid #eab308;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .queue-item-content {
+            flex: 1;
+        }
+
+        .queue-item-content p:first-child {
+            font-weight: 700;
+            color: white;
+            font-size: 13px;
+        }
+
+        .queue-item-content .game {
+            color: #fcd34d;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .queue-item-content .info {
+            color: #cbd5e1;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .queue-item-content .wait-time {
+            color: #fb923c;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-remove {
+            color: #f87171;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .btn-remove:hover {
+            color: #fca5a5;
+        }
+
+        .available-text {
+            color: #64748b;
+            font-size: 13px;
+            text-align: center;
+            padding: 24px 0;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .btn-close:hover {
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            background: #334155;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: ring 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .duration-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .duration-btn {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #475569;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .duration-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .duration-btn:hover:not(.active) {
+            background: #334155;
+        }
+
+        .price-display {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .price-display p:first-child {
+            color: #cbd5e1;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .price-display p:last-child {
+            font-size: 32px;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+            padding: 12px;
+        }
+
+        .btn-confirm {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #059669;
+        }
+
+        .modal-actions .btn-secondary {
+            background: #475569;
+        }
+
+        .modal-actions .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Queue Promotion Modal */
+        .queue-preview {
+            background: rgba(71, 85, 105, 0.5);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .queue-preview-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .queue-preview-item {
+            background: rgba(30, 41, 59, 0.5);
+            border-left: 2px solid #eab308;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .queue-preview-item p {
+            margin: 0;
+        }
+
+        .queue-preview-item p:first-child {
+            font-weight: 700;
+            color: white;
+        }
+
+        .queue-preview-item .game {
+            color: #fcd34d;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .queue-preview-item .info {
+            color: #cbd5e1;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-start-queue {
+            background: #10b981;
+            color: white;
+            padding: 16px;
+            font-weight: 700;
+        }
+
+        .btn-start-queue:hover {
+            background: #059669;
+        }
+
+        .btn-new-booking {
+            background: #2563eb;
+            color: white;
+            padding: 16px;
+            font-weight: 700;
+        }
+
+        .btn-new-booking:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-skip {
+            background: #475569;
+            color: white;
+            padding: 8px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .btn-skip:hover {
+            background: #334155;
+        }
+
+        /* Settings Modal */
+        .settings-section {
+            background: rgba(71, 85, 105, 0.3);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .settings-section h4 {
+            font-weight: 700;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .settings-section:first-of-type h4 {
+            color: #60a5fa;
+        }
+
+        .settings-section:last-of-type h4 {
+            color: #a855f7;
+        }
+
+        .settings-section .form-group {
+            margin-bottom: 12px;
+        }
+
+        .settings-section .form-group label {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <i class="fas fa-gamepad gamepad-icon"></i>
+                <div class="header-left-content">
+                    <h1>ICEMIRE</h1>
+                    <p>Cashier - Bhavay</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <p>Total Revenue</p>
+                <p id="totalRevenueDisplay">₹0</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="openBookingModal()">
+                <i class="fas fa-plus"></i> New Gaming Session
+            </button>
+            <button class="btn btn-secondary" onclick="openSettingsModal()">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </div>
+
+        <!-- Device Cards Grid -->
+        <div class="grid" id="devicesGrid"></div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>New Session</h3>
+                <button class="btn-close" onclick="closeBookingModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Customer Name</label>
+                <input type="text" id="customerName" placeholder="Enter name">
+            </div>
+
+            <div class="form-group">
+                <label>Game</label>
+                <select id="gameSelect">
+                    <option value="">Select a game...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Duration</label>
+                <div class="duration-buttons">
+                    <button class="duration-btn active" onclick="selectDuration('first')" data-duration="first">
+                        <span id="firstDurationText">5 min (₹80)</span>
+                    </button>
+                    <button class="duration-btn" onclick="selectDuration('second')" data-duration="second">
+                        <span id="secondDurationText">8 min (₹150)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Device (Optional)</label>
+                <select id="deviceSelect">
+                    <option value="">Auto-assign (Any available)</option>
+                </select>
+            </div>
+
+            <div class="price-display">
+                <p>Total Price</p>
+                <p id="priceDisplay">₹80</p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-confirm" onclick="confirmBooking()">Confirm Booking</button>
+                <button class="btn btn-secondary" onclick="closeBookingModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="btn-close" onclick="closeSettingsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="settings-section">
+                <h4>Option 1</h4>
+                <div class="form-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" id="duration1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="price1" min="0">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h4>Option 2</h4>
+                <div class="form-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" id="duration2" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="price2" min="0">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-confirm" onclick="saveSettings()">Save</button>
+                <button class="btn btn-secondary" onclick="closeSettingsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Queue Promotion Modal -->
+    <div class="modal-overlay" id="queuePromotionModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="deviceFreeName"></h3>
+            </div>
+            <p style="color: #cbd5e1; margin-bottom: 24px;">What would you like to do?</p>
+
+            <div class="queue-preview" id="queuePreview"></div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-start-queue" onclick="promoteFromQueue()">
+                    <i class="fas fa-chevron-right"></i> Start Queue Member
+                </button>
+                <button class="btn btn-new-booking" onclick="goToNewBooking()">
+                    <i class="fas fa-plus"></i> New Booking
+                </button>
+                <button class="btn btn-skip" onclick="skipQueue()">Skip for Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default devices and games
+        const devicesDefault = {
+            parth: {
+                name: 'Parth',
+                games: ['Forza Horizon', 'Fortnite', 'Grand Theft Auto 5', 'Street Fighter 6', 'Arena Breakout Infinite', 'God of War Ragnarok', 'Black Myth Wukong', 'Rust', 'Grand Theft Auto: San Andreas'],
+                slots: 1,
+                bookings: [],
+                queue: []
+            },
+            atishay: {
+                name: 'Atishay',
+                games: ['Aimlabs', 'Apex Legends', 'Arena Breakout Infinite', 'Counterstrike 2', 'Marvel Rivals', 'Rust', 'Assetto Corsa', 'Minecraft', 'Among Us', 'Rocket League'],
+                slots: 1,
+                bookings: [],
+                queue: []
+            },
+            bhavay: {
+                name: 'Bhavay',
+                games: ['Grand Theft Auto 5', 'Forza Horizon 5', 'Arena Breakout: Infinite', 'Black Myth Wukong', 'Batman Arkham Knight', 'Red Dead Redemption 2', 'Fortnite', 'Fall Guys', 'Grand Theft Auto: San Andreas'],
+                slots: 1,
+                bookings: [],
+                queue: []
+            },
+            ally: {
+                name: 'Ally',
+                games: ['GTA 5', 'Forza Horizon 5', 'Beach Buggy Racing', 'Fortnite', 'Red Dead Redemption 2', 'Arena Breakout', 'Black Myth Wukong', 'Rust'],
+                slots: 1,
+                bookings: [],
+                queue: []
+            }
+        };
+
+        // State
+        let deviceStates = loadDeviceStates();
+        let totalRevenue = loadTotalRevenue();
+        let durations = loadDurations();
+        let prices = loadPrices();
+        let selectedDuration = 'first';
+        let pendingQueueDevice = null;
+        let timerInterval = null;
+
+        // Load functions
+        function loadDeviceStates() {
+            try {
+                const saved = localStorage.getItem('cashier_deviceStates');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    const now = new Date();
+                    Object.keys(parsed).forEach(key => {
+                        // Convert endTime back to Date objects and filter out expired bookings
+                        parsed[key].bookings = parsed[key].bookings
+                            .map(b => ({
+                                ...b,
+                                endTime: new Date(b.endTime)
+                            }))
+                            .filter(b => b.endTime > now); // Remove expired bookings on load
+                    });
+                    return parsed;
+                }
+            } catch (e) {
+                console.log('Error loading saved state');
+            }
+            return JSON.parse(JSON.stringify(devicesDefault)); // Deep copy to avoid mutations
+        }
+
+        function loadTotalRevenue() {
+            try {
+                const saved = localStorage.getItem('cashier_totalRevenue');
+                return saved ? JSON.parse(saved) : 0;
+            } catch {
+                return 0;
+            }
+        }
+
+        function loadDurations() {
+            try {
+                const saved = localStorage.getItem('cashier_durations');
+                return saved ? JSON.parse(saved) : { first: 5, second: 8 };
+            } catch {
+                return { first: 5, second: 8 };
+            }
+        }
+
+        function loadPrices() {
+            try {
+                const saved = localStorage.getItem('cashier_prices');
+                return saved ? JSON.parse(saved) : { first: 80, second: 150 };
+            } catch {
+                return { first: 80, second: 150 };
+            }
+        }
+
+        // Save functions
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('cashier_deviceStates', JSON.stringify(deviceStates));
+                localStorage.setItem('cashier_totalRevenue', JSON.stringify(totalRevenue));
+                localStorage.setItem('cashier_durations', JSON.stringify(durations));
+                localStorage.setItem('cashier_prices', JSON.stringify(prices));
+            } catch (e) {
+                console.log('Error saving to localStorage');
+            }
+        }
+
+        // Modal functions
+        function openBookingModal() {
+            document.getElementById('bookingModal').classList.add('active');
+            populateGameSelect();
+            populateDeviceSelect();
+            updatePriceDisplay();
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+            document.getElementById('customerName').value = '';
+            document.getElementById('gameSelect').value = '';
+            document.getElementById('deviceSelect').value = '';
+            selectedDuration = 'first';
+            updateDurationButtons();
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('duration1').value = durations.first;
+            document.getElementById('price1').value = prices.first;
+            document.getElementById('duration2').value = durations.second;
+            document.getElementById('price2').value = prices.second;
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function saveSettings() {
+            durations.first = Math.max(1, Number(document.getElementById('duration1').value));
+            durations.second = Math.max(1, Number(document.getElementById('duration2').value));
+            prices.first = Math.max(0, Number(document.getElementById('price1').value));
+            prices.second = Math.max(0, Number(document.getElementById('price2').value));
+            saveToLocalStorage();
+            closeSettingsModal();
+            render();
+        }
+
+        function selectDuration(duration) {
+            selectedDuration = duration;
+            updateDurationButtons();
+            updatePriceDisplay();
+        }
+
+        function updateDurationButtons() {
+            document.querySelectorAll('.duration-btn').forEach((btn, idx) => {
+                const durationKey = idx === 0 ? 'first' : 'second';
+                if (durationKey === selectedDuration) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function updatePriceDisplay() {
+            document.getElementById('priceDisplay').textContent = `₹${prices[selectedDuration]}`;
+        }
+
+        function populateGameSelect() {
+            const allGames = [...new Set(Object.values(devicesDefault).flatMap(d => d.games))].sort();
+            const select = document.getElementById('gameSelect');
+            select.innerHTML = '<option value="">Select a game...</option>';
+            allGames.forEach(game => {
+                const option = document.createElement('option');
+                option.value = game;
+                option.textContent = game;
+                select.appendChild(option);
+            });
+        }
+
+        function populateDeviceSelect() {
+            const select = document.getElementById('deviceSelect');
+            select.innerHTML = '<option value="">Auto-assign (Any available)</option>';
+            Object.entries(deviceStates).forEach(([key, device]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                const status = device.bookings.length === 0 ? 'Available' : `Queue: ${device.queue.length}`;
+                option.textContent = `${device.name} (${status})`;
+                select.appendChild(option);
+            });
+        }
+
+        function confirmBooking() {
+            const customerName = document.getElementById('customerName').value;
+            const game = document.getElementById('gameSelect').value;
+            const specificDevice = document.getElementById('deviceSelect').value || null;
+
+            if (!customerName || !game) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            const duration = durations[selectedDuration];
+            const price = prices[selectedDuration];
+            const now = new Date();
+            const endTime = new Date(now.getTime() + duration * 60000);
+
+            let assignedDevice = specificDevice;
+
+            if (assignedDevice) {
+                if (!deviceStates[assignedDevice].games.some(g => g.toLowerCase() === game.toLowerCase())) {
+                    alert(`${deviceStates[assignedDevice].name} doesn't have ${game}!`);
+                    return;
+                }
+
+                if (deviceStates[assignedDevice].bookings.length > 0) {
+                    deviceStates[assignedDevice].queue.push({
+                        id: Date.now(),
+                        customerName,
+                        game,
+                        duration,
+                        price
+                    });
+                    alert(`Added to ${deviceStates[assignedDevice].name}'s queue!`);
+                } else {
+                    deviceStates[assignedDevice].bookings.push({
+                        id: Date.now(),
+                        customerName,
+                        game,
+                        duration,
+                        price,
+                        endTime
+                    });
+                    totalRevenue += price;
+                }
+            } else {
+                let foundDevice = null;
+                for (const [key, device] of Object.entries(deviceStates)) {
+                    if (device.bookings.length === 0 && device.games.some(g => g.toLowerCase() === game.toLowerCase())) {
+                        foundDevice = key;
+                        break;
+                    }
+                }
+
+                if (foundDevice) {
+                    deviceStates[foundDevice].bookings.push({
+                        id: Date.now(),
+                        customerName,
+                        game,
+                        duration,
+                        price,
+                        endTime
+                    });
+                    totalRevenue += price;
+                } else {
+                    let queueDevice = null;
+                    for (const [key, device] of Object.entries(deviceStates)) {
+                        if (device.games.some(g => g.toLowerCase() === game.toLowerCase())) {
+                            queueDevice = key;
+                            break;
+                        }
+                    }
+
+                    if (queueDevice) {
+                        deviceStates[queueDevice].queue.push({
+                            id: Date.now(),
+                            customerName,
+                            game,
+                            duration,
+                            price
+                        });
+                        alert('All devices busy! Added to queue.');
+                    } else {
+                        alert('No device has this game!');
+                        return;
+                    }
+                }
+            }
+
+            saveToLocalStorage();
+            closeBookingModal();
+            render();
+        }
+
+        function cancelBooking(deviceKey, bookingId) {
+            if (window.confirm('Cancel this booking?')) {
+                const booking = deviceStates[deviceKey].bookings.find(b => b.id === bookingId);
+                totalRevenue = Math.max(0, totalRevenue - booking.price);
+                deviceStates[deviceKey].bookings = deviceStates[deviceKey].bookings.filter(b => b.id !== bookingId);
+
+                if (deviceStates[deviceKey].queue.length > 0) {
+                    pendingQueueDevice = deviceKey;
+                    openQueuePromotionModal();
+                }
+
+                saveToLocalStorage();
+                render();
+            }
+        }
+
+        function removeFromQueue(deviceKey, queueId) {
+            deviceStates[deviceKey].queue = deviceStates[deviceKey].queue.filter(q => q.id !== queueId);
+            saveToLocalStorage();
+            render();
+        }
+
+        function promoteFromQueue() {
+            if (pendingQueueDevice && deviceStates[pendingQueueDevice].queue.length > 0) {
+                const nextInQueue = deviceStates[pendingQueueDevice].queue[0];
+                const endTime = new Date(Date.now() + nextInQueue.duration * 60000);
+                deviceStates[pendingQueueDevice].bookings.push({
+                    ...nextInQueue,
+                    endTime
+                });
+                deviceStates[pendingQueueDevice].queue = deviceStates[pendingQueueDevice].queue.slice(1);
+                totalRevenue += nextInQueue.price;
+                saveToLocalStorage();
+                closeQueuePromotionModal();
+                render();
+            }
+        }
+
+        function goToNewBooking() {
+            closeQueuePromotionModal();
+            openBookingModal();
+        }
+
+        function skipQueue() {
+            closeQueuePromotionModal();
+        }
+
+        function openQueuePromotionModal() {
+            if (pendingQueueDevice && deviceStates[pendingQueueDevice].queue.length > 0) {
+                document.getElementById('deviceFreeName').textContent = `${deviceStates[pendingQueueDevice].name} is Free!`;
+                const queueItem = deviceStates[pendingQueueDevice].queue[0];
+                const queuePreview = document.getElementById('queuePreview');
+                queuePreview.innerHTML = `
+                    <p class="queue-preview-title">Next in Queue:</p>
+                    <div class="queue-preview-item">
+                        <p>${queueItem.customerName}</p>
+                        <p class="game">${queueItem.game}</p>
+                        <p class="info">${queueItem.duration} min • ₹${queueItem.price}</p>
+                    </div>
+                `;
+                document.getElementById('queuePromotionModal').classList.add('active');
+            }
+        }
+
+        function closeQueuePromotionModal() {
+            document.getElementById('queuePromotionModal').classList.remove('active');
+            pendingQueueDevice = null;
+        }
+
+        // Utility functions
+        function getRemainingTime(endTime) {
+            const diff = Math.max(0, Math.floor((endTime - new Date()) / 1000));
+            const mins = Math.floor(diff / 60);
+            const secs = diff % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function getQueueWaitTime(device, queueIndex) {
+            let waitTime = 0;
+            if (device.bookings.length > 0) {
+                const currentBooking = device.bookings[0];
+                waitTime += Math.ceil((currentBooking.endTime - new Date()) / 1000 / 60);
+            }
+            for (let i = 0; i < queueIndex; i++) {
+                waitTime += device.queue[i].duration;
+            }
+            return waitTime;
+        }
+
+        // Render function
+        function render() {
+            renderDevices();
+            renderRevenue();
+        }
+
+        function renderDevices() {
+            const grid = document.getElementById('devicesGrid');
+            grid.innerHTML = '';
+
+            Object.entries(deviceStates).forEach(([key, device]) => {
+                const card = document.createElement('div');
+                card.className = 'device-card';
+
+                let content = '';
+
+                if (device.bookings.length > 0) {
+                    content += '<div>';
+                    content += '<div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #475569;">';
+
+                    device.bookings.forEach(booking => {
+                        content += `
+                            <div class="booking-item">
+                                <p>${booking.customerName}</p>
+                                <p class="game">${booking.game}</p>
+                                <div class="booking-info">
+                                    <span>${booking.duration} min • ₹${booking.price}</span>
+                                    <span>${getRemainingTime(booking.endTime)}</span>
+                                </div>
+                                <button class="btn-cancel" onclick="cancelBooking('${key}', ${booking.id})">Cancel</button>
+                            </div>
+                        `;
+                    });
+
+                    content += '</div>';
+
+                    if (device.queue.length > 0) {
+                        content += '<div class="queue-section">';
+                        content += `<p class="queue-title">QUEUE (${device.queue.length})</p>`;
+                        content += '<div>';
+
+                        device.queue.forEach((queueItem, idx) => {
+                            const waitTime = getQueueWaitTime(device, idx);
+                            content += `
+                                <div class="queue-item">
+                                    <div class="queue-item-content">
+                                        <p>#${idx + 1} ${queueItem.customerName}</p>
+                                        <p class="game">${queueItem.game}</p>
+                                        <p class="info">${queueItem.duration} min • ₹${queueItem.price}</p>
+                                        <p class="wait-time">Wait: ~${waitTime} min</p>
+                                    </div>
+                                    <button class="btn-remove" onclick="removeFromQueue('${key}', ${queueItem.id})">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `;
+                        });
+
+                        content += '</div></div>';
+                    }
+
+                    content += '</div>';
+                } else {
+                    content = '<p class="available-text">Available</p>';
+                }
+
+                card.innerHTML = `
+                    <div class="device-header">
+                        <h3>${device.name}</h3>
+                    </div>
+                    <div class="device-content">
+                        ${content}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function renderRevenue() {
+            document.getElementById('totalRevenueDisplay').textContent = `₹${totalRevenue}`;
+        }
+
+        // Timer to check for expired bookings and update queue wait times
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                let changed = false;
+                
+                Object.keys(deviceStates).forEach(key => {
+                    const expiredBookings = deviceStates[key].bookings.filter(b => new Date() >= b.endTime);
+                    if (expiredBookings.length > 0) {
+                        changed = true;
+                        deviceStates[key].bookings = deviceStates[key].bookings.filter(b => new Date() < b.endTime);
+
+                        if (deviceStates[key].queue.length > 0 && deviceStates[key].bookings.length === 0 && !pendingQueueDevice) {
+                            pendingQueueDevice = key;
+                            openQueuePromotionModal();
+                        }
+                    }
+                });
+                
+                if (changed) {
+                    saveToLocalStorage(); // Save state when bookings expire
+                    render();
+                } else {
+                    // Update timers every second even without major changes
+                    renderDevices();
+                }
+            }, 1000);
+        }
+
+        // Close modals on overlay click
+        document.getElementById('bookingModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBookingModal();
+            }
+        });
+
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettingsModal();
+            }
+        });
+
+        document.getElementById('queuePromotionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeQueuePromotionModal();
+            }
+        });
+
+        // Clean up expired bookings on initial load and save
+        function initializeApp() {
+            let changed = false;
+            const now = new Date();
+            
+            Object.keys(deviceStates).forEach(key => {
+                const beforeCount = deviceStates[key].bookings.length;
+                deviceStates[key].bookings = deviceStates[key].bookings.filter(b => b.endTime > now);
+                if (deviceStates[key].bookings.length !== beforeCount) {
+                    changed = true;
+                }
+            });
+            
+            if (changed) {
+                saveToLocalStorage();
+            }
+            
+            render();
+            startTimer();
+        }
+
+        // Save data before page unload
+        window.addEventListener('beforeunload', function() {
+            saveToLocalStorage();
+        });
+
+        // Save data periodically as a backup (every 30 seconds)
+        setInterval(function() {
+            saveToLocalStorage();
+        }, 30000);
+
+        // Initial render and start timer
+        initializeApp();
+    </script>
+</body>
+</html>
